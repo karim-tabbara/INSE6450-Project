@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy.sparse import hstack
 import string
 
-df = pd.read_csv('RawData.csv')
+df = pd.read_csv('../data/RawData.csv')
 print(f"Raw Data shape: {df.shape}")
 print(f"Label distribution:\n{df.label.value_counts()}")
 
@@ -25,7 +25,7 @@ for bar in bars:
              ha='center',
              va='bottom')
 # Save the figure as an output artifact
-plt.savefig('outputs/labels_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig('../outputs/labels_distribution.png', dpi=300, bbox_inches='tight')
 plt.close()
 
 # DATA PROCESSING
@@ -70,9 +70,9 @@ processed_df = pd.DataFrame({
     'message': processed_text,
     'label': df['label']
 })
-processed_df.to_csv('outputs/ProcessedData.csv', index=False)
+processed_df.to_csv('../outputs/ProcessedData.csv', index=False)
 print("=================================================")
-print("Processed data saved to outputs/ProcessedData.csv")
+print("Processed data saved to ../outputs/ProcessedData.csv")
 
 # print(processed_df.shape)
 # print(processed_df.label.value_counts())
@@ -82,24 +82,15 @@ print("Processed data saved to outputs/ProcessedData.csv")
 # Concatenate the TF-IDF features with the numeric features extracted above
 vectorizer = TfidfVectorizer(stop_words='english')
 
-print("=================================================")
-
 X_tfidf = vectorizer.fit_transform(processed_df['message'])
-print(f"TF-IDF features shape: {X_tfidf.shape}")
 
-print("Before scaling:")
-print(pd.DataFrame(numeric_features).describe())
+print("=================================================")
+print(f"TF-IDF features shape: {X_tfidf.shape}")
 
 scaler = StandardScaler(with_mean=False)
 X_numeric_scaled = scaler.fit_transform(numeric_features)
 
-scaled_df = pd.DataFrame(X_numeric_scaled)
-print("After scaling:")
-print(scaled_df.describe())
-
-print("Max abs numeric value:", np.abs(X_numeric_scaled).max())
+X_final = hstack([X_tfidf, X_numeric_scaled])
 
 print("=================================================")
-
-X_final = hstack([X_tfidf, X_numeric_scaled])
 print(f"Final feature matrix shape: {X_final.shape}")
