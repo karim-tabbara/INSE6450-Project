@@ -8,7 +8,7 @@ import string
 
 df = pd.read_csv('../data/RawData.csv')
 print(f"Raw Data shape: {df.shape}")
-print(f"Label distribution:\n{df.label.value_counts()}")
+print(f"Raw Data Label distribution:\n{df.label.value_counts()}")
 
 # OUTPUT ARTIFACT 1: Label Distribution
 label_distribution_count = df['label'].value_counts()
@@ -74,8 +74,8 @@ processed_df.to_csv('../outputs/ProcessedData.csv', index=False)
 print("=================================================")
 print("Processed data saved to ../outputs/ProcessedData.csv")
 
-# print(processed_df.shape)
-# print(processed_df.label.value_counts())
+print(f"Processed Data shape: {processed_df.shape}")
+print(f"Processed Data Label distribution:\n{processed_df.label.value_counts()}")
 
 # FEATURE ENGINEERING
 # Use TF-IDF to extract features from the text data after processing it
