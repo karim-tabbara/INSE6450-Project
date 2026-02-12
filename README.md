@@ -10,6 +10,7 @@
 - "data" folder: contains "RawData.csv", which has the raw labeled data
 - "outputs" folder: contains the output artifacts
 - "src" folder: contains the "main.py" python script
+  - For Milestone 1: "main.py" contains code for data processing + initial feature engineering
 
 ---
 
