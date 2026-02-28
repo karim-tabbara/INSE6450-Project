@@ -51,4 +51,5 @@ Added For **Milestone 2**:
 - In the terminal, navigate to the "src" folder using "cd src"
 - Run the python script using "python main.py"
 - The output artifacts will be saved in the "outputs" folder + the models will be saved to the "models" folder (overwritten if existing already)
+  - Note: the artifacts from Milestone 1 are no longer computed as the code has been updated. They are kept in the "outputs" folder.
 - Some information about label distribution and matrix shapes will be printed in the terminal
