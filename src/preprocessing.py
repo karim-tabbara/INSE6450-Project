@@ -16,25 +16,8 @@ def preprocess_text(text):
 
 def load_and_prepare_data(path):
     df = pd.read_csv(path)
-    # print(f"Raw Data shape: {df.shape}")
-    # print(f"Raw Data Label distribution:\n{df.label.value_counts()}")
 
-    # Extract features
     unprocessed_text = df["message"]
-    character_count = unprocessed_text.str.len()
-    word_count = unprocessed_text.str.split().apply(len)
-    question_count = unprocessed_text.str.count(r"\?")
-    exclamation_count = unprocessed_text.str.count("!")
-
-    numeric_features = np.column_stack([
-        character_count,
-        word_count,
-        question_count,
-        exclamation_count
-    ])
-    # print("=================================================")
-    # print(f"Numeric features shape: {numeric_features.shape}")
-    # print(numeric_features[:3])
 
     # Preprocess text
     processed_text = unprocessed_text.apply(preprocess_text)
@@ -45,15 +28,16 @@ def load_and_prepare_data(path):
     # Training set: 70%
     # Validation set: 15%
     # Test set: 15%
-    X_train_text, X_temp_text, y_train, y_temp, num_train, num_temp = train_test_split(
-        X_text, y, numeric_features,
+
+    X_train_text, X_temp_text, y_train, y_temp = train_test_split(
+        X_text, y,
         test_size=0.30, 
         stratify=y,
         random_state=42
     )
     
-    X_val_text, X_test_text, y_val, y_test, num_val, num_test = train_test_split(
-        X_temp_text, y_temp, num_temp, 
+    X_val_text, X_test_text, y_val, y_test = train_test_split(
+        X_temp_text, y_temp,
         test_size=0.50, 
         stratify=y_temp, 
         random_state=42
@@ -64,13 +48,8 @@ def load_and_prepare_data(path):
     X_val_tfidf = vectorizer.transform(X_val_text)
     X_test_tfidf = vectorizer.transform(X_test_text)
 
-    scaler = StandardScaler(with_mean=False)
-    num_train_scaled = scaler.fit_transform(num_train)
-    num_val_scaled = scaler.transform(num_val)
-    num_test_scaled = scaler.transform(num_test)
+    X_train_final = X_train_tfidf
+    X_val_final = X_val_tfidf
+    X_test_final = X_test_tfidf
 
-    X_train_final = hstack([X_train_tfidf, num_train_scaled])
-    X_val_final = hstack([X_val_tfidf, num_val_scaled])
-    X_test_final = hstack([X_test_tfidf, num_test_scaled])
-
-    return X_train_final, y_train, X_val_final, y_val, X_test_final, y_test, vectorizer, scaler
+    return X_train_final, y_train, X_val_final, y_val, X_test_final, y_test, vectorizer

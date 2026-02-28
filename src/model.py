@@ -10,11 +10,13 @@ from sklearn.preprocessing import label_binarize
 
 
 def train_model(X_train, y_train):
-    model = LogisticRegression(max_iter=1000, multi_class="multinomial")
+    model = LogisticRegression(max_iter=1000, multi_class="multinomial", C=5.0)
     
     start_time = time.time()
     model.fit(X_train, y_train)
     training_time = time.time() - start_time
+
+    print("Iterations used: ", model.n_iter_)
     
     return model, training_time
 

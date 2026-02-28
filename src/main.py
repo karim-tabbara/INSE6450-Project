@@ -6,14 +6,13 @@ from inference import load_models, predict_email
 
 raw_data_path = '../data/RawData.csv'
 
-X_train_final, y_train, X_val_final, y_val, X_test_final, y_test, vectorizer, scaler = load_and_prepare_data(raw_data_path)
+X_train_final, y_train, X_val_final, y_val, X_test_final, y_test, vectorizer = load_and_prepare_data(raw_data_path)
 
 model, training_time = train_model(X_train_final, y_train)
 print(f"Training completed in {training_time:.4f} seconds")
 
 dump(model, '../models/logistic_regression_model.joblib')
 dump(vectorizer, '../models/tfidf_vectorizer.joblib')
-dump(scaler, '../models/standard_scaler.joblib')
     
 validation_acc, validation_precision_macro, validation_recall_macro, validation_f1_macro, validation_precision_micro, validation_recall_micro, validation_f1_micro, validation_auroc, validation_pr_auc = evaluate_model(model, X_val_final, y_val, dataset_name="Validation")
 print(f"Validation Accuracy: {validation_acc:.4f}")
