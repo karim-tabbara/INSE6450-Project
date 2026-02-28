@@ -1,6 +1,6 @@
 import time
 from joblib import dump
-from model import evaluate_model, train_model
+from model import evaluate_model, train_model, plot_learning_curve
 from preprocessing import load_and_prepare_data
 from inference import load_models, measure_single_inference_metrics, measure_batch_inference_metrics, predict_email
 import pandas as pd
@@ -52,6 +52,11 @@ print(f"Test Recall (Micro): {test_recall_micro:.4f}")
 print(f"Test F1 Score (Micro): {test_f1_micro:.4f}")
 print(f"Test AUROC: {test_auroc:.4f}")
 print(f"Test PR-AUC: {test_pr_auc:.4f}")
+
+print("===================================================")
+
+plot_learning_curve(X_train_final, y_train, X_val_final, y_val)
+print("Learning curve plotted and saved to ../outputs/learning_curve.png")
 
 print("===================================================")
 

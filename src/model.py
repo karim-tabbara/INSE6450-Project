@@ -5,9 +5,13 @@ import seaborn as sns
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (accuracy_score, average_precision_score,
                              confusion_matrix, f1_score, precision_score,
-                             recall_score, roc_auc_score)
+                             recall_score, roc_auc_score, log_loss)
 from sklearn.preprocessing import label_binarize
 import psutil
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 def train_model(X_train, y_train):
@@ -82,4 +86,36 @@ def save_confusion_matrix(conf_matrix, labels, output_path="../outputs/confusion
     # Ensure outputs directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+def plot_learning_curve(X_train, y_train, X_val, y_val, max_iters_list=[1,2,5,10,20,30,40,50], C=5.0):
+    train_losses = []
+    val_f1_scores = []
+
+    for max_iter in max_iters_list:
+        model = LogisticRegression(max_iter=max_iter, multi_class="multinomial", C=C)
+        model.fit(X_train, y_train)
+
+        train_loss = log_loss(y_train, model.predict_proba(X_train))
+        val_f1 = f1_score(y_val, model.predict(X_val), average='macro')
+
+        train_losses.append(train_loss)
+        val_f1_scores.append(val_f1)
+    
+    plt.figure(figsize=(10,4))
+
+    plt.subplot(1,2,1)
+    plt.plot(max_iters_list, train_losses, marker='o')
+    plt.xlabel("Iterations (max_iter)")
+    plt.ylabel("Training Log Loss")
+    plt.title("Training Loss vs Iterations")
+
+    plt.subplot(1,2,2)
+    plt.plot(max_iters_list, val_f1_scores, marker='o')
+    plt.xlabel("Iterations (max_iter)")
+    plt.ylabel("Validation Macro F1")
+    plt.title("Validation F1 vs Iterations")
+
+    plt.tight_layout()
+    plt.savefig("../outputs/learning_curve.png", dpi=300)
     plt.close()
