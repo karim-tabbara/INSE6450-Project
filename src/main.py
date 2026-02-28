@@ -2,21 +2,25 @@ import time
 from joblib import dump
 from model import evaluate_model, train_model
 from preprocessing import load_and_prepare_data
-from inference import load_models, predict_email
+from inference import load_models, measure_single_inference_metrics, measure_batch_inference_metrics, predict_email
+import pandas as pd
+
 
 raw_data_path = '../data/RawData.csv'
+df = pd.read_csv(raw_data_path)
+messages = df["message"].tolist()
 
 X_train_final, y_train, X_val_final, y_val, X_test_final, y_test, vectorizer = load_and_prepare_data(raw_data_path)
 
 model, training_time, iterations_used, time_per_iteration, memory_used, size_in_mb, n_parameters, flops = train_model(X_train_final, y_train)
 print("Model training completed. Metrics:")
-print(f"Training completed in {training_time:.4f} seconds")
+print(f"Training completed in {training_time:.4f} milliseconds")
 print(f"Iterations used: {iterations_used}")
-print(f"Time per iteration: {time_per_iteration:.4f} seconds")
+print(f"Time per iteration: {time_per_iteration * 1000:.4f} milliseconds")
 print(f"Memory used during training: {memory_used:.4f} MB")
 print(f"Model size on disk: {size_in_mb:.4f} MB")
 print(f"Number of parameters: {n_parameters}")
-print(f"Estimated FLOPS: {flops:.2e}")
+print(f"Estimated total FLOPS: {flops:.2e}")
 
 dump(model, '../models/logistic_regression_model.joblib')
 dump(vectorizer, '../models/tfidf_vectorizer.joblib')
@@ -48,3 +52,20 @@ print(f"Test Recall (Micro): {test_recall_micro:.4f}")
 print(f"Test F1 Score (Micro): {test_f1_micro:.4f}")
 print(f"Test AUROC: {test_auroc:.4f}")
 print(f"Test PR-AUC: {test_pr_auc:.4f}")
+
+print("===================================================")
+
+latency_single_p50, latency_single_p90, memory_single_mb = measure_single_inference_metrics(messages, model, vectorizer)
+print("Single Inference Metrics:")
+print(f"Latency (P50): {latency_single_p50:.4f} ms")
+print(f"Latency (P90): {latency_single_p90:.4f} ms")
+print(f"Memory Usage: {memory_single_mb:.4f} MB")
+
+print("===================================================")
+
+latency_batch_p50, latency_batch_p90, memory_batch_mb, throughput = measure_batch_inference_metrics(messages, model, vectorizer)
+print("Batch Inference Metrics:")
+print(f"Latency (P50): {latency_batch_p50:.4f} ms")
+print(f"Latency (P90): {latency_batch_p90:.4f} ms")
+print(f"Memory Usage: {memory_batch_mb:.4f} MB")
+print(f"Throughput: {throughput:.4f} samples/sec")

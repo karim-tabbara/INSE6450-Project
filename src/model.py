@@ -20,6 +20,7 @@ def train_model(X_train, y_train):
     start_time = time.time()
     model.fit(X_train, y_train)
     training_time = time.time() - start_time
+    training_time_in_ms = training_time * 1000  # Convert to milliseconds
 
     # Measure memory usage after training
     memory_after = process.memory_info().rss / (1024 * 1024)  # in MB
@@ -42,7 +43,7 @@ def train_model(X_train, y_train):
     n_classes = len(model.classes_)
     flops = (2 * n_samples * n_features * n_classes * iterations_used)/1e9  # Convert to GFLOPS
     
-    return model, training_time, iterations_used, time_per_iteration, memory_used, size_in_mb, n_parameters, flops
+    return model, training_time_in_ms, iterations_used, time_per_iteration, memory_used, size_in_mb, n_parameters, flops
 
 
 # Evaluate the model on validation or test set
