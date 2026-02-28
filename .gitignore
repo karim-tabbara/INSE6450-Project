@@ -1,3 +1,5 @@
 .vscode
 .idea
 personal_notes.txt
+__pycache__/
+*.pyc

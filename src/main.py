@@ -1,96 +1,38 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import StandardScaler
-from scipy.sparse import hstack
-import string
+import time
+from joblib import dump
+from model import evaluate_model, train_model
+from preprocessing import load_and_prepare_data
+from inference import load_models, predict_email
 
-df = pd.read_csv('../data/RawData.csv')
-print(f"Raw Data shape: {df.shape}")
-print(f"Raw Data Label distribution:\n{df.label.value_counts()}")
+raw_data_path = '../data/RawData.csv'
 
-# OUTPUT ARTIFACT 1: Label Distribution
-label_distribution_count = df['label'].value_counts()
-bars = plt.bar(label_distribution_count.index, label_distribution_count.values)
-plt.xlabel("Labels")
-plt.ylabel("Count")
-plt.title("Label Distribution")
-# Add count labels on top of each bar
-for bar in bars:
-    height = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width()/2., 
-             height,
-             f'{int(height)}',
-             ha='center',
-             va='bottom')
-# Save the figure as an output artifact
-plt.savefig('../outputs/labels_distribution.png', dpi=300, bbox_inches='tight')
-plt.close()
+X_train_final, y_train, X_val_final, y_val, X_test_final, y_test, vectorizer, scaler = load_and_prepare_data(raw_data_path)
 
-# DATA PROCESSING
-# Process the data in RawData.csv and save the processed data as ProcessedData.csv
+model, training_time = train_model(X_train_final, y_train)
+print(f"Training completed in {training_time:.4f} seconds")
 
-# Before processing, need to extract a few features
-    # Character count
-    # Word count
-    # "?" count
-    # "!" count
-unprocessed_text = df["message"]
-character_count = unprocessed_text.str.len()
-word_count = unprocessed_text.str.split().apply(len)
-question_count = unprocessed_text.str.count(r"\?")
-exclamation_count = unprocessed_text.str.count("!")
+dump(model, '../models/logistic_regression_model.joblib')
+dump(vectorizer, '../models/tfidf_vectorizer.joblib')
+dump(scaler, '../models/standard_scaler.joblib')
+    
+validation_acc, validation_precision_macro, validation_recall_macro, validation_f1_macro, validation_precision_micro, validation_recall_micro, validation_f1_micro, validation_auroc, validation_pr_auc = evaluate_model(model, X_val_final, y_val, dataset_name="Validation")
+print(f"Validation Accuracy: {validation_acc:.4f}")
+print(f"Validation F1 Score (Macro): {validation_f1_macro:.4f}")
+print(f"Validation Precision (Macro): {validation_precision_macro:.4f}")
+print(f"Validation Recall (Macro): {validation_recall_macro:.4f}")
+print(f"Validation Precision (Micro): {validation_precision_micro:.4f}")
+print(f"Validation Recall (Micro): {validation_recall_micro:.4f}")
+print(f"Validation F1 Score (Micro): {validation_f1_micro:.4f}")
+print(f"Validation AUROC: {validation_auroc:.4f}")
+print(f"Validation PR-AUC: {validation_pr_auc:.4f}")
 
-numeric_features = np.column_stack([
-    character_count,
-    word_count,
-    question_count,
-    exclamation_count
-])
-print("=================================================")
-print(f"Numeric features shape: {numeric_features.shape}")
-print(numeric_features[:3])
-
-# Processing activities: 
-    # - lower casing
-    # - removing punctuation
-    # - removing stop words (done by TfidfVectorizer later)
-
-def preprocess_text(text):
-    text = text.lower()
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    return text
-
-# Apply preprocessing
-processed_text = unprocessed_text.apply(preprocess_text)
-
-# Save processed data to CSV with same format as RawData.csv (message, label)
-processed_df = pd.DataFrame({
-    'message': processed_text,
-    'label': df['label']
-})
-processed_df.to_csv('../outputs/ProcessedData.csv', index=False)
-print("=================================================")
-print("Processed data saved to ../outputs/ProcessedData.csv")
-
-print(f"Processed Data shape: {processed_df.shape}")
-print(f"Processed Data Label distribution:\n{processed_df.label.value_counts()}")
-
-# FEATURE ENGINEERING
-# Use TF-IDF to extract features from the text data after processing it
-# Concatenate the TF-IDF features with the numeric features extracted above
-vectorizer = TfidfVectorizer(stop_words='english')
-
-X_tfidf = vectorizer.fit_transform(processed_df['message'])
-
-print("=================================================")
-print(f"TF-IDF features shape: {X_tfidf.shape}")
-
-scaler = StandardScaler(with_mean=False)
-X_numeric_scaled = scaler.fit_transform(numeric_features)
-
-X_final = hstack([X_tfidf, X_numeric_scaled])
-
-print("=================================================")
-print(f"Final feature matrix shape: {X_final.shape}")
+test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_final, y_test, dataset_name="Test")
+print(f"Test Accuracy: {test_acc:.4f}")
+print(f"Test F1 Score (Macro): {test_f1_macro:.4f}")
+print(f"Test Precision (Macro): {test_precision_macro:.4f}")
+print(f"Test Recall (Macro): {test_recall_macro:.4f}")
+print(f"Test Precision (Micro): {test_precision_micro:.4f}")
+print(f"Test Recall (Micro): {test_recall_micro:.4f}")
+print(f"Test F1 Score (Micro): {test_f1_micro:.4f}")
+print(f"Test AUROC: {test_auroc:.4f}")
+print(f"Test PR-AUC: {test_pr_auc:.4f}")
