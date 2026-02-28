@@ -43,6 +43,7 @@ def load_and_prepare_data(path):
         random_state=42
     )
 
+    # vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
     vectorizer = TfidfVectorizer(stop_words='english')
     X_train_tfidf = vectorizer.fit_transform(X_train_text)
     X_val_tfidf = vectorizer.transform(X_val_text)

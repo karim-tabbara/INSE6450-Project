@@ -7,20 +7,45 @@ from sklearn.metrics import (accuracy_score, average_precision_score,
                              confusion_matrix, f1_score, precision_score,
                              recall_score, roc_auc_score)
 from sklearn.preprocessing import label_binarize
+import psutil
 
 
 def train_model(X_train, y_train):
+    # model = LogisticRegression(max_iter=1000, multi_class="multinomial")
     model = LogisticRegression(max_iter=1000, multi_class="multinomial", C=5.0)
+
+    process = psutil.Process(os.getpid())
+    memory_before = process.memory_info().rss / (1024 * 1024)  # in MB
     
     start_time = time.time()
     model.fit(X_train, y_train)
     training_time = time.time() - start_time
 
-    print("Iterations used: ", model.n_iter_)
+    # Measure memory usage after training
+    memory_after = process.memory_info().rss / (1024 * 1024)  # in MB
+    memory_used = memory_after - memory_before
+
+    iterations_used = model.n_iter_[0]
+
+    # Calculate time per iteration and model size
+    time_per_iteration = training_time / iterations_used
+    size_in_mb = (model.coef_.nbytes + model.intercept_.nbytes) / (1024 * 1024)
     
-    return model, training_time
+    # Calculate number of parameters
+    n_coefficients = model.coef_.size  # Total number of weights
+    n_intercepts = model.intercept_.size  # Total number of biases
+    n_parameters = n_coefficients + n_intercepts
+
+    # Calcuate FLOPS
+    n_samples = X_train.shape[0]
+    n_features = X_train.shape[1]
+    n_classes = len(model.classes_)
+    flops = (2 * n_samples * n_features * n_classes * iterations_used)/1e9  # Convert to GFLOPS
+    
+    return model, training_time, iterations_used, time_per_iteration, memory_used, size_in_mb, n_parameters, flops
 
 
+# Evaluate the model on validation or test set
 def evaluate_model(model, X_val, y_val, dataset_name="Validation"):
     y_pred = model.predict(X_val)
     y_pred_proba = model.predict_proba(X_val)
