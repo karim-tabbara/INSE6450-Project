@@ -9,9 +9,14 @@ import time
 import math
 
 
-def load_models():
-    model = load('../models/logistic_regression_model.joblib')
-    vectorizer = load('../models/tfidf_vectorizer.joblib')
+def load_models(version='v1'):
+    if version == 'v1':
+        model = load('../models/logistic_regression_model.joblib')
+        vectorizer = load('../models/tfidf_vectorizer.joblib')
+    elif version == 'v2':
+        model = load('../models/logistic_regression_model_v2.joblib')
+        vectorizer = load('../models/tfidf_vectorizer_v2.joblib')
+        
     return model, vectorizer
 
 
@@ -21,8 +26,14 @@ def predict_email(text, model, vectorizer):
     
     final_features = text_features
     
-    prediction = model.predict(final_features)
-    return prediction[0]
+    probabilities = model.predict_proba(final_features)
+    max_prob = probabilities.max()
+    predicted_class = model.classes_[probabilities.argmax()]
+
+    if max_prob < 0.7:
+        return "ABSTAIN", max_prob
+
+    return predicted_class, max_prob
 
 
 

@@ -52,7 +52,8 @@ df = pd.read_csv(raw_data_path)
 messages = df["message"]
 labels = df["label"]
 
-model, vectorizer = load_models()
+# model, vectorizer = load_models('v1')
+model, vectorizer = load_models('v2')
 
 X_train_text, X_temp_text, y_train, y_temp = train_test_split(
     messages, labels,

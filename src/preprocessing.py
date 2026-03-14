@@ -1,3 +1,4 @@
+import re
 import string
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,6 +12,8 @@ from sklearn.preprocessing import StandardScaler
 def preprocess_text(text):
     text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
+    text = " ".join(text.split())
+    text = re.sub(r'(.)\1{3,}', r'\1\1', text)
     return text
 
 
