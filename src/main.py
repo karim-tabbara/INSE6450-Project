@@ -3,6 +3,7 @@ from joblib import dump
 from model import evaluate_model, train_model, plot_learning_curve
 from preprocessing import load_and_prepare_data
 from inference import measure_single_inference_metrics, measure_batch_inference_metrics, predict_email, load_models
+from stress_tests import character_noise
 import pandas as pd
 
 
@@ -69,7 +70,9 @@ print("Learning curve plotted and saved to ../outputs/learning_curve.png")
 
 print("===================================================")
 
+# noisy_messages = [character_noise(msg) for msg in messages]
 latency_single_p50, latency_single_p90, memory_single_mb = measure_single_inference_metrics(messages, model, vectorizer)
+# latency_single_p50, latency_single_p90, memory_single_mb = measure_single_inference_metrics(noisy_messages, model, vectorizer)
 print("Single Inference Metrics:")
 print(f"Latency (P50): {latency_single_p50:.4f} ms")
 print(f"Latency (P90): {latency_single_p90:.4f} ms")
@@ -78,6 +81,7 @@ print(f"Memory Usage: {memory_single_mb:.4f} MB")
 print("===================================================")
 
 latency_batch_p50, latency_batch_p90, memory_batch_mb, throughput = measure_batch_inference_metrics(messages, model, vectorizer)
+# latency_batch_p50, latency_batch_p90, memory_batch_mb, throughput = measure_batch_inference_metrics(noisy_messages, model, vectorizer)
 print("Batch Inference Metrics:")
 print(f"Latency (P50): {latency_batch_p50:.4f} ms")
 print(f"Latency (P90): {latency_batch_p90:.4f} ms")

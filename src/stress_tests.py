@@ -87,7 +87,10 @@ print(f"Masked - Test PR-AUC: {test_pr_auc:.4f}")
 
 print("===================================================")
 
-X_test_noisy = X_test_text.apply(character_noise)
+# X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.05)) # 5% character noise
+X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.15)) # 15% character noise
+# X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.20)) # 20% character noise
+# X_test_noisy = X_test_text.apply(character_noise) # default 10% character noise
 X_test_noisy = X_test_noisy.apply(preprocess_text)
 X_test_noisy_final = vectorizer.transform(X_test_noisy)
 test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_noisy_final, y_test, dataset_name="Noisy_Test")

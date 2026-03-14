@@ -1,0 +1,11 @@
+message,true_label,predicted_label,confidence
+The gym will reopen tomorrow with regular hours.,Informational,Urgent,0.7392012783977253
+"Hello Greg, Don't forget - critical stakeholder meeting tomorrow at 10 AM. Your presentation is first. Cheers, Elizabeth Velez.",Urgent,Scheduling,0.6993084659961538
+"Hi team, just a reminder about our Project Alpha meeting tomorrow at 10 AM in Conference Room 3. Please come prepared to discuss the Q3 roadmap. Best, John",Scheduling,Informational,0.6936906433661686
+"Pedro, I've attached the document you requested for your record Sincerely, Deborah.",Informational,Needs Reply,0.6759342917936426
+Please share your availability for a brief discussion when possible.,Needs Reply,Scheduling,0.6141615133173572
+"Dear William, Major project timeline changes due to resource reallocation. Review new dates below immediately. Sincerely, William Lester MD.",Urgent,Informational,0.6128324321174684
+The program start date has been postponed.,Informational,Urgent,0.5751984471557922
+I wanted to ensure we're on the same page.,Needs Reply,Informational,0.5694849461437756
+The weather forecast shows heavy rain expected tomorrow afternoon.,Informational,Urgent,0.4572973102815663
+The museum exhibit will remain open through the end of the month.,Informational,Urgent,0.4566849503841831
