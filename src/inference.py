@@ -21,6 +21,10 @@ def load_models(version='v1'):
 
 
 def predict_email(text, model, vectorizer):
+    
+    if not text or not text.strip():
+        return "ABSTAIN", 0.0
+    
     processed_text = preprocess_text(text)
     text_features = vectorizer.transform([processed_text])
     
