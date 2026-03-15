@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from inference import load_models
 from inference import predict_email
 import matplotlib.pyplot as plt
@@ -20,6 +21,39 @@ recent_length_mean = recent_lengths.mean()
 print(f"Training mean message length: {train_length_mean:.2f}")
 print(f"Recent mean message length: {recent_length_mean:.2f}")
 print(f"Length shift: {recent_length_mean - train_length_mean:.2f}")
+
+# Calculate PSI for message length distribution
+def calculate_psi(expected, actual, bins=10):
+    """
+    Calculate Population Stability Index (PSI)
+    expected: reference distribution (training)
+    actual: new distribution (recent data)
+    """
+    expected = np.array(expected)
+    actual = np.array(actual)
+
+    breakpoints = np.percentile(expected, np.arange(0, 101, 100 / bins))
+    breakpoints[0] = -np.inf
+    breakpoints[-1] = np.inf
+
+    expected_counts = np.histogram(expected, bins=breakpoints)[0] / len(expected)
+    actual_counts = np.histogram(actual, bins=breakpoints)[0] / len(actual)
+
+    psi = np.sum(
+        (actual_counts - expected_counts) *
+        np.log((actual_counts + 1e-6) / (expected_counts + 1e-6))
+    )
+
+    return psi
+
+psi_value = calculate_psi(train_lengths.values, recent_lengths.values)
+print(f"PSI (Population Stability Index) for message length: {psi_value:.4f}")
+if psi_value < 0.1:
+    print("  → PSI < 0.1: No significant drift detected")
+elif psi_value < 0.2:
+    print("  → 0.1 ≤ PSI < 0.2: Moderate drift detected")
+else:
+    print("  → PSI ≥ 0.2: Significant drift detected")
 
 # Model prediction and confidence distribution
 predictions = []
