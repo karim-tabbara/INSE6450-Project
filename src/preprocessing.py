@@ -28,6 +28,15 @@ def load_and_prepare_data(path):
     X_text = processed_text
     y = df["label"]
 
+    # print(f"Raw Data shape: {df.shape}")
+    # print(f"Raw Data Label distribution:\n{df.label.value_counts()}")
+
+    # label_distribution_count = df['label'].value_counts()
+    # bars = plt.bar(label_distribution_count.index, label_distribution_count.values)
+    # plt.xlabel("Labels")
+    # plt.ylabel("Count")
+    # plt.title("Label Distribution")
+
     # Training set: 70%
     # Validation set: 15%
     # Test set: 15%
