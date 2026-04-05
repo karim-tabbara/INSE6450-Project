@@ -47,94 +47,95 @@ def ood_input(text, ood_prob=0.3, ood_length=10):
     return text
 
 
-raw_data_path = '../data/RawData.csv'
-df = pd.read_csv(raw_data_path)
-messages = df["message"]
-labels = df["label"]
+if __name__ == "__main__":
+    raw_data_path = '../data/RawData.csv'
+    df = pd.read_csv(raw_data_path)
+    messages = df["message"]
+    labels = df["label"]
 
-# model, vectorizer = load_models('v1')
-model, vectorizer = load_models('v2')
+    # model, vectorizer = load_models('v1')
+    model, vectorizer = load_models('v2')
 
-X_train_text, X_temp_text, y_train, y_temp = train_test_split(
-    messages, labels,
-    test_size=0.30, 
-    stratify=labels,
-    random_state=42
-)
-    
-X_val_text, X_test_text, y_val, y_test = train_test_split(
-    X_temp_text, y_temp,
-    test_size=0.50, 
-    stratify=y_temp, 
-    random_state=42
-)
+    X_train_text, X_temp_text, y_train, y_temp = train_test_split(
+        messages, labels,
+        test_size=0.30, 
+        stratify=labels,
+        random_state=42
+    )
+        
+    X_val_text, X_test_text, y_val, y_test = train_test_split(
+        X_temp_text, y_temp,
+        test_size=0.50, 
+        stratify=y_temp, 
+        random_state=42
+    )
 
 
-X_test_masked = X_test_text.apply(token_mask)
-X_test_masked = X_test_masked.apply(preprocess_text)
-X_test_masked_final = vectorizer.transform(X_test_masked)
-test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_masked_final, y_test, dataset_name="Masked_Test")
-print("Masked - Test Metrics:")
-print(f"Masked - Test Accuracy: {test_acc:.4f}")
-print(f"Masked - Test Precision (Macro): {test_precision_macro:.4f}")
-print(f"Masked - Test Recall (Macro): {test_recall_macro:.4f}")
-print(f"Masked - Test F1 Score (Macro): {test_f1_macro:.4f}")
-print(f"Masked - Test Precision (Micro): {test_precision_micro:.4f}")
-print(f"Masked - Test Recall (Micro): {test_recall_micro:.4f}")
-print(f"Masked - Test F1 Score (Micro): {test_f1_micro:.4f}")
-print(f"Masked - Test AUROC: {test_auroc:.4f}")
-print(f"Masked - Test PR-AUC: {test_pr_auc:.4f}")
+    X_test_masked = X_test_text.apply(token_mask)
+    X_test_masked = X_test_masked.apply(preprocess_text)
+    X_test_masked_final = vectorizer.transform(X_test_masked)
+    test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_masked_final, y_test, dataset_name="Masked_Test", save_conf_matrix=False)
+    print("Masked - Test Metrics:")
+    print(f"Masked - Test Accuracy: {test_acc:.4f}")
+    print(f"Masked - Test Precision (Macro): {test_precision_macro:.4f}")
+    print(f"Masked - Test Recall (Macro): {test_recall_macro:.4f}")
+    print(f"Masked - Test F1 Score (Macro): {test_f1_macro:.4f}")
+    print(f"Masked - Test Precision (Micro): {test_precision_micro:.4f}")
+    print(f"Masked - Test Recall (Micro): {test_recall_micro:.4f}")
+    print(f"Masked - Test F1 Score (Micro): {test_f1_micro:.4f}")
+    print(f"Masked - Test AUROC: {test_auroc:.4f}")
+    print(f"Masked - Test PR-AUC: {test_pr_auc:.4f}")
 
-print("===================================================")
+    print("===================================================")
 
-# X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.05)) # 5% character noise
-# X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.15)) # 15% character noise
-# X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.20)) # 20% character noise
-X_test_noisy = X_test_text.apply(character_noise) # default 10% character noise
-X_test_noisy = X_test_noisy.apply(preprocess_text)
-X_test_noisy_final = vectorizer.transform(X_test_noisy)
-test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_noisy_final, y_test, dataset_name="Noisy_Test")
-print("Noisy - Test Metrics:")
-print(f"Noisy - Test Accuracy: {test_acc:.4f}")
-print(f"Noisy - Test Precision (Macro): {test_precision_macro:.4f}")
-print(f"Noisy - Test Recall (Macro): {test_recall_macro:.4f}")
-print(f"Noisy - Test F1 Score (Macro): {test_f1_macro:.4f}")
-print(f"Noisy - Test Precision (Micro): {test_precision_micro:.4f}")
-print(f"Noisy - Test Recall (Micro): {test_recall_micro:.4f}")
-print(f"Noisy - Test F1 Score (Micro): {test_f1_micro:.4f}")
-print(f"Noisy - Test AUROC: {test_auroc:.4f}")
-print(f"Noisy - Test PR-AUC: {test_pr_auc:.4f}")
+    # X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.05)) # 5% character noise
+    # X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.15)) # 15% character noise
+    # X_test_noisy = X_test_text.apply(lambda x: character_noise(x, noise_prob=0.20)) # 20% character noise
+    X_test_noisy = X_test_text.apply(character_noise) # default 10% character noise
+    X_test_noisy = X_test_noisy.apply(preprocess_text)
+    X_test_noisy_final = vectorizer.transform(X_test_noisy)
+    test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_noisy_final, y_test, dataset_name="Noisy_Test", save_conf_matrix=False)
+    print("Noisy - Test Metrics:")
+    print(f"Noisy - Test Accuracy: {test_acc:.4f}")
+    print(f"Noisy - Test Precision (Macro): {test_precision_macro:.4f}")
+    print(f"Noisy - Test Recall (Macro): {test_recall_macro:.4f}")
+    print(f"Noisy - Test F1 Score (Macro): {test_f1_macro:.4f}")
+    print(f"Noisy - Test Precision (Micro): {test_precision_micro:.4f}")
+    print(f"Noisy - Test Recall (Micro): {test_recall_micro:.4f}")
+    print(f"Noisy - Test F1 Score (Micro): {test_f1_micro:.4f}")
+    print(f"Noisy - Test AUROC: {test_auroc:.4f}")
+    print(f"Noisy - Test PR-AUC: {test_pr_auc:.4f}")
 
-print("===================================================")
+    print("===================================================")
 
-X_test_truncated = X_test_text.apply(truncate_email)
-X_test_truncated = X_test_truncated.apply(preprocess_text)
-X_test_truncated_final = vectorizer.transform(X_test_truncated)
-test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_truncated_final, y_test, dataset_name="Truncated_Test")
-print("Truncated - Test Metrics:")
-print(f"Truncated - Test Accuracy: {test_acc:.4f}")
-print(f"Truncated - Test Precision (Macro): {test_precision_macro:.4f}")
-print(f"Truncated - Test Recall (Macro): {test_recall_macro:.4f}")
-print(f"Truncated - Test F1 Score (Macro): {test_f1_macro:.4f}")
-print(f"Truncated - Test Precision (Micro): {test_precision_micro:.4f}")
-print(f"Truncated - Test Recall (Micro): {test_recall_micro:.4f}")
-print(f"Truncated - Test F1 Score (Micro): {test_f1_micro:.4f}")
-print(f"Truncated - Test AUROC: {test_auroc:.4f}")
-print(f"Truncated - Test PR-AUC: {test_pr_auc:.4f}")
+    X_test_truncated = X_test_text.apply(truncate_email)
+    X_test_truncated = X_test_truncated.apply(preprocess_text)
+    X_test_truncated_final = vectorizer.transform(X_test_truncated)
+    test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_truncated_final, y_test, dataset_name="Truncated_Test", save_conf_matrix=False)
+    print("Truncated - Test Metrics:")
+    print(f"Truncated - Test Accuracy: {test_acc:.4f}")
+    print(f"Truncated - Test Precision (Macro): {test_precision_macro:.4f}")
+    print(f"Truncated - Test Recall (Macro): {test_recall_macro:.4f}")
+    print(f"Truncated - Test F1 Score (Macro): {test_f1_macro:.4f}")
+    print(f"Truncated - Test Precision (Micro): {test_precision_micro:.4f}")
+    print(f"Truncated - Test Recall (Micro): {test_recall_micro:.4f}")
+    print(f"Truncated - Test F1 Score (Micro): {test_f1_micro:.4f}")
+    print(f"Truncated - Test AUROC: {test_auroc:.4f}")
+    print(f"Truncated - Test PR-AUC: {test_pr_auc:.4f}")
 
-print("===================================================")
+    print("===================================================")
 
-X_test_ood = X_test_text.apply(ood_input)
-X_test_ood = X_test_ood.apply(preprocess_text)
-X_test_ood_final = vectorizer.transform(X_test_ood)
-test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_ood_final, y_test, dataset_name="OOD_Test")
-print("OOD - Test Metrics:")
-print(f"OOD - Test Accuracy: {test_acc:.4f}")
-print(f"OOD - Test Precision (Macro): {test_precision_macro:.4f}")
-print(f"OOD - Test Recall (Macro): {test_recall_macro:.4f}")
-print(f"OOD - Test F1 Score (Macro): {test_f1_macro:.4f}")
-print(f"OOD - Test Precision (Micro): {test_precision_micro:.4f}")
-print(f"OOD - Test Recall (Micro): {test_recall_micro:.4f}")
-print(f"OOD - Test F1 Score (Micro): {test_f1_micro:.4f}")
-print(f"OOD - Test AUROC: {test_auroc:.4f}")
-print(f"OOD - Test PR-AUC: {test_pr_auc:.4f}")
+    X_test_ood = X_test_text.apply(ood_input)
+    X_test_ood = X_test_ood.apply(preprocess_text)
+    X_test_ood_final = vectorizer.transform(X_test_ood)
+    test_acc, test_precision_macro, test_recall_macro, test_f1_macro, test_precision_micro, test_recall_micro, test_f1_micro, test_auroc, test_pr_auc = evaluate_model(model, X_test_ood_final, y_test, dataset_name="OOD_Test", save_conf_matrix=False)
+    print("OOD - Test Metrics:")
+    print(f"OOD - Test Accuracy: {test_acc:.4f}")
+    print(f"OOD - Test Precision (Macro): {test_precision_macro:.4f}")
+    print(f"OOD - Test Recall (Macro): {test_recall_macro:.4f}")
+    print(f"OOD - Test F1 Score (Macro): {test_f1_macro:.4f}")
+    print(f"OOD - Test Precision (Micro): {test_precision_micro:.4f}")
+    print(f"OOD - Test Recall (Micro): {test_recall_micro:.4f}")
+    print(f"OOD - Test F1 Score (Micro): {test_f1_micro:.4f}")
+    print(f"OOD - Test AUROC: {test_auroc:.4f}")
+    print(f"OOD - Test PR-AUC: {test_pr_auc:.4f}")

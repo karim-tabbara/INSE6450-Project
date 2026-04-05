@@ -45,13 +45,13 @@ def train_model(X_train, y_train):
     n_samples = X_train.shape[0]
     n_features = X_train.shape[1]
     n_classes = len(model.classes_)
-    flops = (2 * n_samples * n_features * n_classes * iterations_used)/1e9  # Convert to GFLOPS
+    flops = (2.0 * n_samples * n_features * n_classes * iterations_used) / 1e9  # Convert to GFLOPS
     
     return model, training_time_in_ms, iterations_used, time_per_iteration, memory_used, size_in_mb, n_parameters, flops
 
 
 # Evaluate the model on validation or test set
-def evaluate_model(model, X_val, y_val, dataset_name="Validation"):
+def evaluate_model(model, X_val, y_val, dataset_name="Validation", save_conf_matrix=True):
     y_pred = model.predict(X_val)
     y_pred_proba = model.predict_proba(X_val)
     
@@ -69,9 +69,10 @@ def evaluate_model(model, X_val, y_val, dataset_name="Validation"):
     y_val_bin = label_binarize(y_val, classes=model.classes_)
     pr_auc = average_precision_score(y_val_bin, y_pred_proba, average='macro')
 
-    labels = model.classes_
-    conf_matrix = confusion_matrix(y_val, y_pred)
-    save_confusion_matrix(conf_matrix, labels=labels, output_path=f"../outputs/confusion_matrix_{dataset_name}.png")
+    if save_conf_matrix:
+        labels = model.classes_
+        conf_matrix = confusion_matrix(y_val, y_pred)
+        save_confusion_matrix(conf_matrix, labels=labels, output_path=f"../outputs/confusion_matrix_{dataset_name}.png")
 
     return acc, precision_macro, recall_macro, f1_macro, precision_micro, recall_micro, f1_micro, auroc, pr_auc
 
