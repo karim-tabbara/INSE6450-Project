@@ -34,7 +34,7 @@ def predict_email(text, model, vectorizer):
     max_prob = probabilities.max()
     predicted_class = model.classes_[probabilities.argmax()]
 
-    if max_prob < 0.7:
+    if max_prob < 0.65:
         return "ABSTAIN", max_prob
 
     return predicted_class, max_prob

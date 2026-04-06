@@ -37,8 +37,8 @@ print("===================================================")
 
 # Before Continual Learning
 model_base, vectorizer_base = load_models('v2')
-X_test_base = vectorizer_base.transform(test_noisy_processed)
-before_test_acc, before_test_precision_macro, before_test_recall_macro, before_test_f1_macro, before_test_precision_micro, before_test_recall_micro, before_test_f1_micro, before_test_auroc, before_test_pr_auc = evaluate_model(model_base, X_test_base, y_test, dataset_name="Before_CL", save_conf_matrix=False)
+X_test_vectorized_base = vectorizer_base.transform(test_noisy_processed)
+before_test_acc, before_test_precision_macro, before_test_recall_macro, before_test_f1_macro, before_test_precision_micro, before_test_recall_micro, before_test_f1_micro, before_test_auroc, before_test_pr_auc = evaluate_model(model_base, X_test_vectorized_base, y_test, dataset_name="Before_CL", save_conf_matrix=False)
 print("CL Experiment - Before - Test Metrics:")
 print(f"CL Experiment - Before - Test Accuracy: {before_test_acc:.4f}")
 print(f"CL Experiment - Before - Test Precision (Macro): {before_test_precision_macro:.4f}")
@@ -58,9 +58,9 @@ y_train_combined = pd.concat([y_train, y_train], ignore_index=True)
 
 vectorizer_CL = TfidfVectorizer(stop_words='english')
 
-X_train_CL = vectorizer_CL.fit_transform(X_train_combined)
+X_train_vectorized_CL = vectorizer_CL.fit_transform(X_train_combined)
 
-model_CL, training_time, iterations_used, time_per_iteration, memory_used, size_in_mb, n_parameters, flops = train_model(X_train_CL, y_train_combined)
+model_CL, training_time, iterations_used, time_per_iteration, memory_used, size_in_mb, n_parameters, flops = train_model(X_train_vectorized_CL, y_train_combined)
 dump(model_CL, '../models/logistic_regression_model_CL.joblib')
 dump(vectorizer_CL, '../models/tfidf_vectorizer_CL.joblib')
 
@@ -76,9 +76,9 @@ print(f"Estimated total FLOPS: {flops:.2e}")
 print("===================================================")
 
 # After Continual Learning
-X_test_CL = vectorizer_CL.transform(test_noisy_processed)
+X_test_vectorized_CL = vectorizer_CL.transform(test_noisy_processed)
 
-after_test_acc, after_test_precision_macro, after_test_recall_macro, after_test_f1_macro, after_test_precision_micro, after_test_recall_micro, after_test_f1_micro, after_test_auroc, after_test_pr_auc = evaluate_model(model_CL, X_test_CL, y_test, dataset_name="After_CL", save_conf_matrix=False)
+after_test_acc, after_test_precision_macro, after_test_recall_macro, after_test_f1_macro, after_test_precision_micro, after_test_recall_micro, after_test_f1_micro, after_test_auroc, after_test_pr_auc = evaluate_model(model_CL, X_test_vectorized_CL, y_test, dataset_name="After_CL", save_conf_matrix=False)
 print("CL Experiment - After - Test Metrics:")
 print(f"CL Experiment - After - Test Accuracy: {after_test_acc:.4f}")
 print(f"CL Experiment - After - Test Precision (Macro): {after_test_precision_macro:.4f}")
@@ -122,15 +122,15 @@ for noise in noise_levels:
     noisy_test_messages = X_test_text.apply(lambda msg: character_noise(msg, noise_prob=noise))
     noisy_test_messages = noisy_test_messages.apply(preprocess_text)
     
-    noisy_test_features_base = vectorizer_base.transform(noisy_test_messages)
-    acc_base, _, _, f1_base, _, _, _, _, _ = evaluate_model(model_base, noisy_test_features_base, y_test, dataset_name=f"CL_Experiment_Noise_{noise:.2f}_Base", save_conf_matrix=False)
+    noisy_test_vectorized_base = vectorizer_base.transform(noisy_test_messages)
+    acc_base, _, _, f1_base, _, _, _, _, _ = evaluate_model(model_base, noisy_test_vectorized_base, y_test, dataset_name=f"CL_Experiment_Noise_{noise:.2f}_Base", save_conf_matrix=False)
     base_model_accuracies.append(acc_base)
     base_model_f1.append(f1_base)
 
-    noisy_test_features_cl = vectorizer_CL.transform(noisy_test_messages)
-    acc_cl, _, _, f1_cl, _, _, _, _, _ = evaluate_model(model_CL, noisy_test_features_cl, y_test, dataset_name=f"CL_Experiment_Noise_{noise:.2f}_CL", save_conf_matrix=False)
-    cl_model_accuracies.append(acc_cl)
-    cl_model_f1.append(f1_cl)
+    noisy_test_vectorized_CL = vectorizer_CL.transform(noisy_test_messages)
+    acc_CL, _, _, f1_CL, _, _, _, _, _ = evaluate_model(model_CL, noisy_test_vectorized_CL, y_test, dataset_name=f"CL_Experiment_Noise_{noise:.2f}_CL", save_conf_matrix=False)
+    cl_model_accuracies.append(acc_CL)
+    cl_model_f1.append(f1_CL)
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
