@@ -16,6 +16,12 @@ def load_models(version='v1'):
     elif version == 'v2':
         model = load('../models/logistic_regression_model_v2.joblib')
         vectorizer = load('../models/tfidf_vectorizer_v2.joblib')
+    elif version == 'CL':
+        model = load('../models/logistic_regression_model_CL.joblib')
+        vectorizer = load('../models/tfidf_vectorizer_CL.joblib')
+    elif version == 'HITL':
+        model = load('../models/logistic_regression_model_HITL.joblib')
+        vectorizer = load('../models/tfidf_vectorizer_HITL.joblib')
         
     return model, vectorizer
 
